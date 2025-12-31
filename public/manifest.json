@@ -1,0 +1,58 @@
+{
+  "name": "DeliveryPro - Material Delivery Management",
+  "short_name": "DeliveryPro",
+  "description": "Complete solution for tracking truck deliveries, managing clients, generating invoices, and monitoring your construction material business",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "finance"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your dashboard",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192x192.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Create Order",
+      "short_name": "New Order",
+      "description": "Create a new order",
+      "url": "/orders",
+      "icons": [{ "src": "/icon-192x192.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Invoices",
+      "short_name": "Invoices",
+      "description": "Generate invoices",
+      "url": "/invoices",
+      "icons": [{ "src": "/icon-192x192.jpg", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard view"
+    }
+  ]
+}
