@@ -32,13 +32,6 @@ export default function ViewInvoice() {
   const { data, isLoading } = useInvoice(invoiceId)
   const { data: companySettings } = useCompanySettings()
 
-  console.log("[v0] Invoice data:", {
-    invoice: data?.invoice,
-    items: data?.items,
-    client: data?.invoice?.clients,
-    companySettings,
-  })
-
   if (isLoading) {
     return (
       <MainLayout>
@@ -65,7 +58,7 @@ export default function ViewInvoice() {
   const { invoice, items } = data
   const client = invoice.clients
 
-  const canGeneratePDF = invoice && client && items && items.length > 0
+  const canGeneratePDF = !!(invoice && client && items && items.length > 0 && companySettings)
 
   return (
     <MainLayout>
@@ -95,13 +88,14 @@ export default function ViewInvoice() {
                   if (error) {
                     console.error("[v0] PDF generation error:", error)
                     return (
-                      <Button variant="destructive" disabled>
-                        Error generating PDF
+                      <Button variant="destructive" disabled title="Error generating PDF">
+                        <Download className="h-4 w-4 mr-2" />
+                        PDF Error
                       </Button>
                     )
                   }
                   return (
-                    <Button disabled={loading}>
+                    <Button disabled={loading} title={loading ? "Preparing PDF..." : "Download invoice as PDF"}>
                       {loading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -193,14 +187,14 @@ export default function ViewInvoice() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {items.map((item: typeof items[number], idx: number) => (
+                        {items.map((item: (typeof items)[number], idx: number) => (
                           <tr key={item.id} className={idx % 2 === 1 ? "bg-muted/30" : ""}>
-                          <td className="p-3 font-medium">{item.description}</td>
-                          <td className="p-3 text-right">{Number(item.quantity).toFixed(2)}</td>
-                          <td className="p-3 text-right">₹{Number(item.rate).toFixed(2)}</td>
-                          <td className="p-3 text-right font-semibold">
-                            ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                          </td>
+                            <td className="p-3 font-medium">{item.description}</td>
+                            <td className="p-3 text-right">{Number(item.quantity).toFixed(2)}</td>
+                            <td className="p-3 text-right">₹{Number(item.rate).toFixed(2)}</td>
+                            <td className="p-3 text-right font-semibold">
+                              ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

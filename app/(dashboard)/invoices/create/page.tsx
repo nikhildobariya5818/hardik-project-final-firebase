@@ -59,12 +59,17 @@ export default function CreateInvoice() {
   const generateInvoiceNumber = () => {
     const invoiceNum = companySettings?.next_invoice_number || 1
     const selectedDate = new Date(selectedMonth)
-    const month = selectedDate.getMonth() + 1
-    const year = selectedDate.getFullYear()
-    const nextYear = year + 1
-    const yearSuffix = `${year.toString().slice(-2)}/${nextYear.toString().slice(-2)}`
+    let year = selectedDate.getFullYear()
+    const month = selectedDate.getMonth()
+    if (month < 3) {
+      // Months 0-2 (Jan, Feb, Mar) belong to previous financial year
+      year = year - 1
+    }
+    const financialYearStart = year
+    const financialYearEnd = year + 1
+    const yearSuffix = `${financialYearStart.toString().slice(-2)}/${financialYearEnd.toString().slice(-2)}`
 
-    return `${invoiceNum}-${month}-${yearSuffix}`
+    return `${invoiceNum}-${(month + 1).toString().padStart(2, "0")}-${yearSuffix}`
   }
 
   const handleSaveInvoice = async () => {
