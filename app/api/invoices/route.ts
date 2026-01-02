@@ -28,7 +28,17 @@ export async function GET(request: NextRequest) {
           const client = await clientsDB.getById(invoice.client_id)
           return {
             ...invoice,
-            clients: client ? { name: client.name, city: client.city } : undefined,
+            clients: client
+              ? {
+                  name: client.name,
+                  city: client.city,
+                  address: client.address,
+                  state: client.state,
+                  pincode: client.pincode,
+                  phone: client.phone,
+                  gst_number: client.gst_number,
+                }
+              : undefined,
           }
         } catch (error) {
           console.error("[API] Error enriching invoice:", error)

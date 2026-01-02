@@ -59,17 +59,12 @@ export default function CreateInvoice() {
   const generateInvoiceNumber = () => {
     const invoiceNum = companySettings?.next_invoice_number || 1
     const selectedDate = new Date(selectedMonth)
-    let year = selectedDate.getFullYear()
-    const month = selectedDate.getMonth()
-    if (month < 3) {
-      // Months 0-2 (Jan, Feb, Mar) belong to previous financial year
-      year = year - 1
-    }
-    const financialYearStart = year
-    const financialYearEnd = year + 1
-    const yearSuffix = `${financialYearStart.toString().slice(-2)}/${financialYearEnd.toString().slice(-2)}`
+    const month = selectedDate.getMonth() + 1
+    const year = selectedDate.getFullYear()
+    const nextYear = year + 1
+    const yearSuffix = `${year.toString().slice(-2)}/${nextYear.toString().slice(-2)}`
 
-    return `${invoiceNum}-${(month + 1).toString().padStart(2, "0")}-${yearSuffix}`
+    return `${invoiceNum}-${month}-${yearSuffix}`
   }
 
   const handleSaveInvoice = async () => {
@@ -101,6 +96,7 @@ export default function CreateInvoice() {
         quantity: Number(order.quantity || order.weight || 0),
         rate: Number(order.rate),
         amount: Number(order.total),
+        location: order.location || undefined,
       }))
 
       await createInvoice.mutateAsync({
@@ -227,6 +223,7 @@ export default function CreateInvoice() {
                           <th className="text-right p-3 text-sm font-semibold">Qty (MT)</th>
                           <th className="text-right p-3 text-sm font-semibold">Rate</th>
                           <th className="text-right p-3 text-sm font-semibold">Amount</th>
+                          <th className="text-right p-3 text-sm font-semibold">Location</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -243,6 +240,7 @@ export default function CreateInvoice() {
                               <td className="p-3 text-right font-semibold">
                                 ₹{total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                               </td>
+                              <td className="p-3 text-right">{order.location || "N/A"}</td>
                             </tr>
                           )
                         })}

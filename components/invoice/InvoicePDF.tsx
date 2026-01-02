@@ -389,7 +389,7 @@ interface InvoicePDFProps {
   invoice: Invoice & {
     clients?: Client
   }
-  items: InvoiceItem[]
+  items: (InvoiceItem & { location?: string | null })[]
   client: Client | undefined
   companySettings: CompanySettings | undefined
 }
@@ -439,7 +439,7 @@ export function InvoicePDF({ invoice, items, client, companySettings }: InvoiceP
     return (
       <Document>
         <Page size="A4" style={styles.page}>
-          <Text>Error: Missing invoice data</Text>
+          <Text>Error: Missing invoice data - Client information is required to generate PDF</Text>
         </Page>
       </Document>
     )

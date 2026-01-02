@@ -1,4 +1,4 @@
-import { invoicesDB, invoiceItemsDB } from "@/lib/firebase/database"
+import { invoicesDB, invoiceItemsDB, clientsDB } from "@/lib/firebase/database"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +12,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const items = await invoiceItemsDB.getAll({ invoice_id: id })
 
-    return NextResponse.json({ data: invoice, items })
+    const client = await clientsDB.getById(invoice.client_id)
+    const enrichedInvoice = {
+      ...invoice,
+      clients: client
+        ? {
+            name: client.name,
+            city: client.city,
+            address: client.address,
+            state: client.state,
+            pincode: client.pincode,
+            phone: client.phone,
+            gst_number: client.gst_number,
+          }
+        : undefined,
+    }
+
+    return NextResponse.json({ data: enrichedInvoice, items })
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

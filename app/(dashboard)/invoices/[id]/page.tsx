@@ -32,6 +32,13 @@ export default function ViewInvoice() {
   const { data, isLoading } = useInvoice(invoiceId)
   const { data: companySettings } = useCompanySettings()
 
+  console.log("[v0] Invoice data:", {
+    invoice: data?.invoice,
+    items: data?.items,
+    client: data?.invoice?.clients,
+    companySettings,
+  })
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -58,7 +65,7 @@ export default function ViewInvoice() {
   const { invoice, items } = data
   const client = invoice.clients
 
-  const canGeneratePDF = !!(invoice && client && items && items.length > 0 && companySettings)
+  const canGeneratePDF = invoice && client?.name && items && items.length > 0
 
   return (
     <MainLayout>
@@ -88,14 +95,13 @@ export default function ViewInvoice() {
                   if (error) {
                     console.error("[v0] PDF generation error:", error)
                     return (
-                      <Button variant="destructive" disabled title="Error generating PDF">
-                        <Download className="h-4 w-4 mr-2" />
-                        PDF Error
+                      <Button variant="destructive" disabled>
+                        Error generating PDF
                       </Button>
                     )
                   }
                   return (
-                    <Button disabled={loading} title={loading ? "Preparing PDF..." : "Download invoice as PDF"}>
+                    <Button disabled={loading}>
                       {loading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
