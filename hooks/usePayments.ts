@@ -12,8 +12,18 @@ async function fetchPayments(clientId?: string): Promise<Payment[]> {
   return json.data
 }
 
-async function fetchPaymentsBeforeMonth(year: number, month: number): Promise<Payment[]> {
-  const res = await fetch(`/api/payments?before_year=${year}&before_month=${month}`)
+async function fetchPaymentsByMonth(clientId: string, yearMonth: string): Promise<Payment[]> {
+  const [year, month] = yearMonth.split("-")
+  const url = `/api/payments?client_id=${clientId}&year=${year}&month=${month}`
+  const res = await fetch(url)
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json.data
+}
+
+async function fetchPaymentsBeforeMonth(clientId: string, yearMonth: string): Promise<Payment[]> {
+  const [year, month] = yearMonth.split("-")
+  const res = await fetch(`/api/payments?client_id=${clientId}&before_year=${year}&before_month=${month}`)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error)
   return json.data
@@ -23,22 +33,33 @@ export function usePayments() {
   return useQuery({
     queryKey: ["payments"],
     queryFn: () => fetchPayments(),
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
-export function usePaymentsByClient(clientId: string) {
+export function usePaymentsByClient(clientId: string, yearMonth?: string) {
   return useQuery({
-    queryKey: ["payments", "client", clientId],
-    queryFn: () => fetchPayments(clientId),
+    queryKey: ["payments", "client", clientId, yearMonth],
+    queryFn: () => {
+      if (yearMonth) {
+        return fetchPaymentsByMonth(clientId, yearMonth)
+      }
+      return fetchPayments(clientId)
+    },
     enabled: !!clientId,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
-export function usePaymentsBeforeMonth(year: number, month: number) {
+export function usePaymentsBeforeMonth(clientId: string, yearMonth: string) {
   return useQuery({
-    queryKey: ["payments", "before", year, month],
-    queryFn: () => fetchPaymentsBeforeMonth(year, month),
-    enabled: !!year && !!month,
+    queryKey: ["payments", "before", clientId, yearMonth],
+    queryFn: () => fetchPaymentsBeforeMonth(clientId, yearMonth),
+    enabled: !!clientId && !!yearMonth,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -59,7 +80,10 @@ export function useAddPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
+      queryClient.invalidateQueries({ queryKey: ["payments", "client"] })
+      queryClient.invalidateQueries({ queryKey: ["payments", "before"] })
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["invoices"] })
       toast({
         title: "Payment Added",
         description: "New payment has been recorded.",
@@ -90,7 +114,10 @@ export function useDeletePayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] })
+      queryClient.invalidateQueries({ queryKey: ["payments", "client"] })
+      queryClient.invalidateQueries({ queryKey: ["payments", "before"] })
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["invoices"] })
       toast({
         title: "Payment Deleted",
         description: "Payment has been removed.",

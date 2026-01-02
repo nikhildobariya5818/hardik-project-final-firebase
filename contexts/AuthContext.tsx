@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const buildUser = async (firebaseUser: FirebaseUser): Promise<User | null> => {
     const role = await fetchUserRole(firebaseUser.uid)
-    if (!role) return null
+    const userRole: UserRole = role || "staff"
 
     const profile = await profilesDB.getById(firebaseUser.uid)
 
@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ? profile.full_name
           : (firebaseUser.email?.split("@")[0] ?? "User"),
       email: firebaseUser.email ?? "",
-      role,
+      role: userRole,
     }
   }
 

@@ -224,80 +224,84 @@ export default function ClientsPage() {
 
         {/* Client Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredClients.map((client, index) => (
-            <div
-              key={client.id}
-              className="bg-card rounded-xl shadow-md border border-border/50 overflow-hidden hover:shadow-lg transition-all duration-200 animate-slide-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-lg">
-                      {client.name.charAt(0)}
+          {filteredClients.map((client, index) => {
+            const balanceColor = client.current_balance >= 0 ? "text-green-600" : "text-orange-600"
+
+            return (
+              <div
+                key={client.id}
+                className="bg-card rounded-xl shadow-md border border-border/50 overflow-hidden hover:shadow-lg transition-all duration-200 animate-slide-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-lg">
+                        {client.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{client.name}</h3>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {client.city}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{client.name}</h3>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {client.city}
+                    {isAdmin && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setViewClient(client)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditClient(client)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Client
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive" onClick={() => setDeleteClientId(client.id)}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      {client.phone}
+                    </div>
+
+                    <div className="pt-3 border-t border-border">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Current Balance</span>
+                        <span className={`font-semibold text-lg flex items-center ${balanceColor}`}>
+                          <IndianRupee className="h-4 w-4" />
+                          {Number(client.current_balance).toLocaleString("en-IN")}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  {isAdmin && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setViewClient(client)}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditClient(client)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit Client
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => setDeleteClientId(client.id)}>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-4 w-4" />
-                    {client.phone}
-                  </div>
-
-                  <div className="pt-3 border-t border-border">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Current Balance</span>
-                      <span className="font-semibold text-lg flex items-center text-warning">
-                        <IndianRupee className="h-4 w-4" />
-                        {Number(client.current_balance).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  </div>
+                <div className="px-6 py-3 bg-muted/30 border-t border-border/50">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-center text-primary hover:text-primary"
+                    onClick={() => setViewClient(client)}
+                  >
+                    View Orders
+                  </Button>
                 </div>
               </div>
-
-              <div className="px-6 py-3 bg-muted/30 border-t border-border/50">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-center text-primary hover:text-primary"
-                  onClick={() => setViewClient(client)}
-                >
-                  View Orders
-                </Button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {filteredClients.length === 0 && (
@@ -409,7 +413,11 @@ function ClientDetailView({ client, onBack }: { client: Client; onBack: () => vo
             </div>
             <div className="w-full sm:w-auto text-left sm:text-right">
               <p className="text-sm text-muted-foreground">Current Balance</p>
-              <p className="text-xl sm:text-2xl font-bold text-warning flex items-center sm:justify-end">
+              <p
+                className={`text-xl sm:text-2xl font-bold flex items-center sm:justify-end ${
+                  client.current_balance >= 0 ? "text-green-600" : "text-orange-600"
+                }`}
+              >
                 <IndianRupee className="h-5 w-5" />
                 {Number(client.current_balance).toLocaleString("en-IN")}
               </p>

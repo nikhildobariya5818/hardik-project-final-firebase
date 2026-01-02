@@ -13,6 +13,8 @@ export function useInvoices() {
       if (!res.ok) throw new Error(json.error)
       return json.data as Invoice[]
     },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -29,6 +31,8 @@ export function useInvoice(id: string | null) {
       return { invoice: json.data, items: json.items || [] }
     },
     enabled: !!id,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -55,7 +59,7 @@ export function useCreateInvoice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] })
-      queryClient.invalidateQueries({ queryKey: ["company-settings"] })
+      queryClient.invalidateQueries({ queryKey: ["invoice"] })
     },
   })
 }
@@ -105,6 +109,7 @@ export function useDeleteInvoice() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] })
+      queryClient.invalidateQueries({ queryKey: ["invoice"] })
     },
   })
 }

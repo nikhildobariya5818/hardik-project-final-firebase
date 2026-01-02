@@ -22,6 +22,8 @@ export function useClients() {
   return useQuery({
     queryKey: ["clients"],
     queryFn: fetchClients,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -30,6 +32,8 @@ export function useClient(id: string) {
     queryKey: ["clients", id],
     queryFn: () => fetchClient(id),
     enabled: !!id,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -80,8 +84,9 @@ export function useUpdateClient() {
       if (!res.ok) throw new Error(json.error)
       return json.data
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["clients", variables.id] })
       toast({
         title: "Client Updated",
         description: "Client details have been updated.",

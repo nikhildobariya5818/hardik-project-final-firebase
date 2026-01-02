@@ -65,7 +65,7 @@ export default function ViewInvoice() {
   const { invoice, items } = data
   const client = invoice.clients
 
-  const canGeneratePDF = invoice && client && companySettings && items && items.length > 0
+  const canGeneratePDF = invoice && client && items && items.length > 0
 
   return (
     <MainLayout>
@@ -92,7 +92,6 @@ export default function ViewInvoice() {
                 fileName={`Invoice-${invoice.invoice_number}.pdf`}
               >
                 {({ loading, error }) => {
-                  console.log("[v0] PDF Link state:", { loading, error })
                   if (error) {
                     console.error("[v0] PDF generation error:", error)
                     return (
@@ -119,7 +118,7 @@ export default function ViewInvoice() {
                 }}
               </PDFDownloadLink>
             ) : (
-              <Button disabled>
+              <Button disabled title="Invoice items are required to generate PDF">
                 <Download className="h-4 w-4 mr-2" />
                 Download PDF
               </Button>
@@ -194,14 +193,14 @@ export default function ViewInvoice() {
                         </tr>
                       </thead>
                       <tbody className="divide-y">
-                        {items.map((item, idx) => (
+                        {items.map((item: typeof items[number], idx: number) => (
                           <tr key={item.id} className={idx % 2 === 1 ? "bg-muted/30" : ""}>
-                            <td className="p-3 font-medium">{item.description}</td>
-                            <td className="p-3 text-right">{Number(item.quantity).toFixed(2)}</td>
-                            <td className="p-3 text-right">₹{Number(item.rate).toFixed(2)}</td>
-                            <td className="p-3 text-right font-semibold">
-                              ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                            </td>
+                          <td className="p-3 font-medium">{item.description}</td>
+                          <td className="p-3 text-right">{Number(item.quantity).toFixed(2)}</td>
+                          <td className="p-3 text-right">₹{Number(item.rate).toFixed(2)}</td>
+                          <td className="p-3 text-right font-semibold">
+                            ₹{Number(item.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                          </td>
                           </tr>
                         ))}
                       </tbody>

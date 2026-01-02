@@ -22,6 +22,8 @@ export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -29,6 +31,8 @@ export function useMaterialRates() {
   return useQuery({
     queryKey: ["material-rates"],
     queryFn: fetchMaterialRates,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -215,6 +219,8 @@ export function useVehicles() {
   return useQuery({
     queryKey: ["vehicles"],
     queryFn: fetchVehicles,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 

@@ -45,14 +45,5 @@
       "url": "/invoices",
       "icons": [{ "src": "/icon-192x192.jpg", "sizes": "192x192" }]
     }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Dashboard view"
-    }
   ]
 }

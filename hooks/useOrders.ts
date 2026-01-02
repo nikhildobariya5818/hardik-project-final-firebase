@@ -12,8 +12,18 @@ async function fetchOrders(clientId?: string): Promise<Order[]> {
   return json.data
 }
 
-async function fetchOrdersBeforeMonth(year: number, month: number): Promise<Order[]> {
-  const res = await fetch(`/api/orders?before_year=${year}&before_month=${month}`)
+async function fetchOrdersByMonth(clientId: string, yearMonth: string): Promise<Order[]> {
+  const [year, month] = yearMonth.split("-")
+  const url = `/api/orders?client_id=${clientId}&year=${year}&month=${month}`
+  const res = await fetch(url)
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error)
+  return json.data
+}
+
+async function fetchOrdersBeforeMonth(clientId: string, yearMonth: string): Promise<Order[]> {
+  const [year, month] = yearMonth.split("-")
+  const res = await fetch(`/api/orders?client_id=${clientId}&before_year=${year}&before_month=${month}`)
   const json = await res.json()
   if (!res.ok) throw new Error(json.error)
   return json.data
@@ -23,22 +33,33 @@ export function useOrders() {
   return useQuery({
     queryKey: ["orders"],
     queryFn: () => fetchOrders(),
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
-export function useOrdersByClient(clientId: string) {
+export function useOrdersByClient(clientId: string, yearMonth?: string) {
   return useQuery({
-    queryKey: ["orders", "client", clientId],
-    queryFn: () => fetchOrders(clientId),
+    queryKey: ["orders", "client", clientId, yearMonth],
+    queryFn: () => {
+      if (yearMonth) {
+        return fetchOrdersByMonth(clientId, yearMonth)
+      }
+      return fetchOrders(clientId)
+    },
     enabled: !!clientId,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
-export function useOrdersBeforeMonth(year: number, month: number) {
+export function useOrdersBeforeMonth(clientId: string, yearMonth: string) {
   return useQuery({
-    queryKey: ["orders", "before", year, month],
-    queryFn: () => fetchOrdersBeforeMonth(year, month),
-    enabled: !!year && !!month,
+    queryKey: ["orders", "before", clientId, yearMonth],
+    queryFn: () => fetchOrdersBeforeMonth(clientId, yearMonth),
+    enabled: !!clientId && !!yearMonth,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   })
 }
 
@@ -57,9 +78,12 @@ export function useAddOrder() {
       if (!res.ok) throw new Error(json.error)
       return json.data
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "client"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "before"] })
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["invoices"] })
       toast({
         title: "Order Added",
         description: "New order has been added successfully.",
@@ -92,7 +116,10 @@ export function useUpdateOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "client"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "before"] })
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["invoices"] })
       toast({
         title: "Order Updated",
         description: "Order has been updated.",
@@ -123,7 +150,10 @@ export function useDeleteOrder() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "client"] })
+      queryClient.invalidateQueries({ queryKey: ["orders", "before"] })
       queryClient.invalidateQueries({ queryKey: ["clients"] })
+      queryClient.invalidateQueries({ queryKey: ["invoices"] })
       toast({
         title: "Order Deleted",
         description: "Order has been removed.",
